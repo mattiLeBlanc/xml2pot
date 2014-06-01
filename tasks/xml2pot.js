@@ -121,7 +121,7 @@ module.exports = function(grunt)
 
         // get the head for the POT file
         //
-        head            = grunt.file.read( "node_modules/xml2pot/templates/head.txt") ;
+        head            = grunt.file.read( "node_modules/grunt-xml2pot/templates/head.txt") ;
         content         += head ;
 
 
