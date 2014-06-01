@@ -23,9 +23,7 @@
   "engines": {
     "node": ">= 0.8.0"
   },
-  "scripts": {
-    "test": "grunt test"
-  },
+
   "devDependencies": {
 
     "grunt": "~0.4.5",
@@ -37,5 +35,10 @@
   },
   "keywords": [
     "gruntplugin"
+  ],
+    "files": [
+    "tasks",
+    "templates",
+    "LICENSE-MIT"
   ]
 }

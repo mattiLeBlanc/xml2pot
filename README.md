@@ -24,66 +24,70 @@ In your project's Gruntfile, add a section named `xml2pot` to the data object pa
 
 ```js
 grunt.initConfig({
-  xml2pot: {
-    options: {
-      // Task-specific options go here.
+    xml2pot:
+    {
+        dist:
+        {
+           src:
+            [
+                'node_modules/xml2pot/test/*/i18n.xml'
+            ,   '118n.xml'
+            ]
+        ,   dest: 'plugin.pot'
+        }
     },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
-  },
 });
 ```
 
 ### Options
+There are currenty no options.
+You can duplicate the dist block for another collection of files, with another name of course. That is about it for now.
 
-#### options.separator
-Type: `String`
-Default value: `',  '`
 
-A string value that is used to do something with whatever.
-
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
-
-A string value that is used to do something else with whatever else.
 
 ### Usage Examples
 
 #### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+The example setup works together with the structure in the TEST folder. There are several i18n files located in the main folder and subdirectories.
+There are being merged in one pot file set in the 'dest' parameter.
+
+The separate i18n.xml file in the main folder has a general role. It holds textlabels used in all subdirectory apps. The xml files in the sub directory apps are specifically for those app.
+
+Any duplication is not allowed, so a second occurence of a text value will be ignored (but reported)
+
+An i18n XML file needs to have to following structure:
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<i18n>
+    <label value="iconClose">Close</label>
+    <label value="male">Male</label>
+    <label value="female">Female</label>
+</i18n>
+Xml2Pot allows the use of the root tag as 'i18n' or 'I18N'. Don't do <i18N></I18n> etc..Javascript is case sensitive and the xml parser I use doesn't support to lower case the XML tags will parsing.
+
 
 ```js
 grunt.initConfig({
-  xml2pot: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
+    xml2pot:
+    {
+        dist:
+        {
+           src:
+            [
+                'node_modules/xml2pot/test/*/i18n.xml'
+            ,   '118n.xml'
+            ]
+        ,   dest: 'plugin.pot'
+        }
     },
-  },
 });
 ```
 
 #### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+The templates folder holds the head of the pot file that is used. It is a card blanch because I expect you to use POEDIT to fill in the gaps and save your PO files based on this POT file.
 
-```js
-grunt.initConfig({
-  xml2pot: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
-```
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+Version 0.1.0 Initial

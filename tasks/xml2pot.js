@@ -13,7 +13,7 @@ module.exports = function(grunt)
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
-    grunt.file.defaultEncoding = 'utf8';
+  //  grunt.file.defaultEncoding = 'utf8';
     var parser      = require('xml2json');
     var chalk       = require('chalk');
 
@@ -32,13 +32,15 @@ module.exports = function(grunt)
         // Iterate over all specified file groups.
         this.files.forEach( function( f )
         {
+
             var sourceList = {};
-            console.log(f.dest);
+
             // loop through all the source files
             f.src.map( function( filepath )
             {
                 var xml
                 ,   src
+                ,   root
                 ,   elements
                 ;
 
@@ -46,17 +48,21 @@ module.exports = function(grunt)
 
                 // now get the content of each source file
                 //
-                xml     = grunt.file.read( filepath) ;
-                src     = parser.toJson( xml,
+                xml         = grunt.file.read( filepath) ;
+
+                src         = parser.toJson( xml,
                 {
                     object:             true
                 ,   arrayNotation:      false
                 ,   sanitize:           false
                 } );
 
-                if ( src.i18n && src.i18n.label && src.i18n.label.length )
+                root = src.i18n ? "i18n" : ( src.I18N ? "I18N" : null );
+
+
+                if ( root && src[ root ].label && src[  root ].label.length )
                 {
-                    elements = src.i18n.label;
+                    elements = src[ root ].label;
 
                     elements.forEach( function( el, ix )
                     {
@@ -83,6 +89,11 @@ module.exports = function(grunt)
                         }
                     } );
                 }
+                else
+                {
+                    grunt.log.writeln( chalk.red( "No i18n or I18N root element found in file " ) + filepath );
+                }
+
 
              }); // end file loop
 
@@ -103,15 +114,15 @@ module.exports = function(grunt)
 
     function _createPotFile( filepath, elements )
     {
-        var content = ""
+        var content     = ""
         ,   head
         ,   item
         ;
 
         // get the head for the POT file
         //
-        head     = grunt.file.read( "templates/head.txt") ;
-        content += head ;
+        head            = grunt.file.read( "node_modules/xml2pot/templates/head.txt") ;
+        content         += head ;
 
 
         // now create the text entries
@@ -124,8 +135,8 @@ module.exports = function(grunt)
                 content += "msgstr \"" + elements[ item ] + "\"";
             }
         }
-      // Write the destination file.
-      //
+        // Write the destination file.
+        //
         grunt.file.write( filepath, content );
         grunt.log.writeln( "\n" + chalk.green( filepath + " written." ) );
     }
