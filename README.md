@@ -59,11 +59,13 @@ An i18n XML file needs to have to following structure:
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <i18n>
-    <label value="iconClose">Close</label>
-    <label value="male">Male</label>
-    <label value="female">Female</label>
+    <label key="iconClose">Close</label>
+    <label key="male">Male</label>
+    <label key="female">Female</label>
 </i18n>
 ```
+The 'key' attribute will be converted to a Javascript key, so refrain from using to wild characters, I would stick to '-,_,a-z,A-Z,0-9'. Other characters shouldn't be a problem because during the conversion I access the colletion with the key using 'words[ key ]'.
+
 Xml2Pot allows the use of the root tag as 'i18n' or 'I18N'. Don't do <i18N></I18n> etc..Javascript is case sensitive and the xml parser I use doesn't support to lower case the XML tags will parsing.
 
 

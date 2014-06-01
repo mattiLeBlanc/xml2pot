@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <I18N>
-    <label value="iconClose">Close</label>
-    <label value="male">Male</label>
-    <label value="female">Female</label>
+    <label key="iconClose">Close</label>
+    <label key="male">Male</label>
+    <label key="female">Female</label>
 </I18N>

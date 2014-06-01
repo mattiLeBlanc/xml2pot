@@ -36,7 +36,7 @@ module.exports = function(grunt)
             var sourceList = {};
 
             // loop through all the source files
-            f.src.map( function( filepath )
+            f.src.map( function( filepath , idx)
             {
                 var xml
                 ,   src
@@ -45,7 +45,7 @@ module.exports = function(grunt)
                 ;
 
                 grunt.log.writeln( chalk.cyan( "Processing file ") + filepath );
-
+                sourceList[ "<%source%>-" + idx ] = filepath;
                 // now get the content of each source file
                 //
                 xml         = grunt.file.read( filepath) ;
@@ -64,28 +64,28 @@ module.exports = function(grunt)
                 {
                     elements = src[ root ].label;
 
-                    elements.forEach( function( el, ix )
+                    elements.forEach( function( el )
                     {
                         // if value or textlabel ($t) are missing, skip this element
                         //
-                        if ( !el.value || !el.$t )
+                        if ( !el.key || !el.$t )
                         {
                             //warn user of duplicate
                             //
-                            grunt.log.writeln( chalk.red( "Incomplete entry found" ) + " with {key}/{label} value {" +el.value + "}/{" + el.$t  + "}" );
+                            grunt.log.writeln( chalk.red( "Incomplete entry found" ) + " with {key}/{label} value {" +el.key + "}/{" + el.$t  + "}" );
                             return true;
                         }
                         // if element doesnt exist already, add it to the list
                         //
-                        if ( !sourceList[ el.value ] )
+                        if ( !sourceList[ el.key ] )
                         {
-                            sourceList[ el.value ] = el.$t;
+                            sourceList[ el.key ] = el.$t;
                         }
                         else
                         {
                             //warn user of duplicate
                             //
-                            grunt.log.writeln( chalk.red( "Duplicate" ) + " entry found for '" + chalk.cyan(el.value) + "' in file " + chalk.green( filepath ) + ". This entry will be ignored" );
+                            grunt.log.writeln( chalk.red( "Duplicate" ) + " entry found for '" + chalk.cyan(el.key) + "' in file " + chalk.green( filepath ) + ". This entry will be ignored" );
                         }
                     } );
                 }
@@ -116,7 +116,7 @@ module.exports = function(grunt)
     {
         var content     = ""
         ,   head
-        ,   item
+        ,   key
         ;
 
         // get the head for the POT file
@@ -126,13 +126,23 @@ module.exports = function(grunt)
 
 
         // now create the text entries
-        for( item in elements )
+        for( key in elements )
         {
-            if ( elements.hasOwnProperty( item ) )
+            if ( elements.hasOwnProperty( key ) )
             {
-                content += "\n\n";
-                content += "msgid \"" + item + "\"" + "\n\r";
-                content += "msgstr \"" + elements[ item ] + "\"";
+
+                if ( key.search( /<%source%>/) === 0 )
+                {
+                    content += "\n\n";
+                    content += "#: text from " + elements[ key ];
+                }
+                else
+                {
+                    content += "\n\n";
+                    content += "msgid \"" + key + "\"" + "\n\r";
+                    content += "msgstr \"" + elements[ key ] + "\"";
+
+                }
             }
         }
         // Write the destination file.
