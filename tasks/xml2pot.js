@@ -13,7 +13,7 @@ module.exports = function(grunt)
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
-
+    grunt.file.defaultEncoding = 'utf8';
     var parser      = require('xml2json');
     var chalk       = require('chalk');
 
@@ -27,11 +27,13 @@ module.exports = function(grunt)
             separator: ', '
         } );
 
-        var sourceList = {};
+
 
         // Iterate over all specified file groups.
         this.files.forEach( function( f )
         {
+            var sourceList = {};
+            console.log(f.dest);
             // loop through all the source files
             f.src.map( function( filepath )
             {
@@ -45,7 +47,7 @@ module.exports = function(grunt)
                 // now get the content of each source file
                 //
                 xml     = grunt.file.read( filepath) ;
-                src  = parser.toJson( xml,
+                src     = parser.toJson( xml,
                 {
                     object:             true
                 ,   arrayNotation:      false
@@ -71,7 +73,7 @@ module.exports = function(grunt)
                         //
                         if ( !sourceList[ el.value ] )
                         {
-                            sourceList[ el.value ] = el.$t
+                            sourceList[ el.value ] = el.$t;
                         }
                         else
                         {
@@ -82,32 +84,50 @@ module.exports = function(grunt)
                     } );
                 }
 
-
-                //console.log(data);
-
              }); // end file loop
 
-    // crete our pot file!
-    console.log(sourceList);
 
+            // create our pot file
+            if ( sourceList )
+            {
+                _createPotFile( f.dest, sourceList );
+            }
+            else
+            {
+                 grunt.log.writeln( chalk.red( "No text elements found." ) + " Pot file not written." );
+            }
 
-
-// var parser = new xml2js.Parser();
-// fs.readFile(__dirname + '/foo.xml', function(err, data) {
-//     parser.parseString(data, function (err, result) {
-//         console.dir(result);
-//         console.log('Done');
-//     });
-// });
-
-            //grunt.log.writeflags( f);
-            // var src = f.src.map( function( filepath )
-            // {
-            //  grunt.log.writeflags( filepath );
-
-            //  } );
-            //grunt.log.writeflags( f );
-        } );
+        } ); // end this.files loop
     } );
+
+
+    function _createPotFile( filepath, elements )
+    {
+        var content = ""
+        ,   head
+        ,   item
+        ;
+
+        // get the head for the POT file
+        //
+        head     = grunt.file.read( "templates/head.txt") ;
+        content += head ;
+
+
+        // now create the text entries
+        for( item in elements )
+        {
+            if ( elements.hasOwnProperty( item ) )
+            {
+                content += "\n\n";
+                content += "msgid \"" + item + "\"" + "\n\r";
+                content += "msgstr \"" + elements[ item ] + "\"";
+            }
+        }
+      // Write the destination file.
+      //
+        grunt.file.write( filepath, content );
+        grunt.log.writeln( "\n" + chalk.green( filepath + " written." ) );
+    }
 
 };

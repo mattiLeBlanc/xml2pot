@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<i18n>
+    <label value="lblFirstname">Member firstname</label>
+    <label value="lblLastname">Member lastname</label>
+    <label value="lblCountryBirth">Your country of birth</label>
+    <label value="lblCountryRes">Where is your 'residence'?</label>
+</i18n>

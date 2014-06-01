@@ -22,10 +22,10 @@ module.exports = function(grunt)
             {
                src:
                 [
-                    'apps/*/i18n.xml'
+                    'test/*/i18n.xml'
                 ,   '118n.xml'
                 ]
-            ,   dest: 'static/sass/apps.scss'
+            ,   dest: 'plugin.pot'
             }
         }
 
