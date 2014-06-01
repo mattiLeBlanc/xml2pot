@@ -1,6 +1,6 @@
 # grunt-xml2pot
 
-> Convert your XML files with key/value pairs to a POT file
+> Convert your XML files with key/label pairs to a POT file. This will enable you to create your MO file which you can run parallel with a proces that fetches the key/value pairs and mold it into an array for your wp_localize_script action.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -30,7 +30,7 @@ grunt.initConfig({
         {
            src:
             [
-                'node_modules/xml2pot/test/*/i18n.xml'
+                'node_modules/grunt-xml2pot/test/*/i18n.xml'
             ,   '118n.xml'
             ]
         ,   dest: 'plugin.pot'
@@ -75,7 +75,7 @@ grunt.initConfig({
         {
            src:
             [
-                'node_modules/xml2pot/test/*/i18n.xml'
+                'node_modules/grunt-xml2pot/test/*/i18n.xml'
             ,   '118n.xml'
             ]
         ,   dest: 'plugin.pot'
