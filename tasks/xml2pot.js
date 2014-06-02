@@ -150,7 +150,7 @@ module.exports = function(grunt)
                 {
                     content += "\n\n";
                     content += "msgid \"" + key + "\"" + "\n\r";
-                    content += "msgstr \"" + elements[ key ] + "\"";
+                    content += "msgstr \"\"";
 
                 }
             }
