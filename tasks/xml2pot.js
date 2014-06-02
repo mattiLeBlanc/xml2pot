@@ -42,6 +42,7 @@ module.exports = function(grunt)
                 ,   src
                 ,   root
                 ,   elements
+                ,   temp
                 ;
 
                 grunt.log.writeln( chalk.cyan( "Processing file ") + filepath );
@@ -59,6 +60,14 @@ module.exports = function(grunt)
 
                 root = src.i18n ? "i18n" : ( src.I18N ? "I18N" : null );
 
+                // little hack because our xml parser doesnt return an array object of labels when there is only one element in the xml file
+                //
+                if ( grunt.util.kindOf( src[ root ].label ) === "object" )
+                {
+                    temp                = src[ root ].label;
+                    src[ root ].label   = [];
+                    src[ root ].label.push( temp );
+                }
 
                 if ( root && src[ root ].label && src[  root ].label.length )
                 {
@@ -130,7 +139,8 @@ module.exports = function(grunt)
         {
             if ( elements.hasOwnProperty( key ) )
             {
-
+                // add comment line to POT file
+                //
                 if ( key.search( /<%source%>/) === 0 )
                 {
                     content += "\n\n";
