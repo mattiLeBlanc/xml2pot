@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<i18n>
+<i18n context="customer">
     <label key="buttonSubmit">Submitting the results</label>
     <label key="lblWarning">You are running late, my son!</label>
 </i18n>

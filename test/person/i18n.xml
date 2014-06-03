@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<i18n>
+<i18n context="user">
     <label key="lblFirstname">Member firstname</label>
     <label key="lblLastname">Member lastname</label>
     <label key="lblCountryBirth">Your country of birth</label>

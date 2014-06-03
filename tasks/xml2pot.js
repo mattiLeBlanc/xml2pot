@@ -16,18 +16,20 @@ module.exports = function(grunt)
   //  grunt.file.defaultEncoding = 'utf8';
     var parser      = require('xml2json');
     var chalk       = require('chalk');
+    var path        = require('path');
 
 
-    grunt.registerMultiTask( 'xml2pot', 'Convert your XML files with key/value pairs to a POT file', function()
+
+    grunt.registerMultiTask( 'xml2pot', 'Convert your XML files with key/value pairs to a POT file', function(  )
     {
         // Merge task-specific and/or target-specific options with these defaults.
-        var options = this.options(
-        {
-            punctuation: '.',
-            separator: ', '
-        } );
-
-
+        var options             = this.options(
+            {
+                punctuation: '.',
+                separator: ', '
+            } )
+        ,   separatePotFiles    = this.data.options && this.data.options.separatePotfiles ? this.data.options.separatePotfiles : false
+        ;
 
         // Iterate over all specified file groups.
         this.files.forEach( function( f )
@@ -43,14 +45,18 @@ module.exports = function(grunt)
                 ,   root
                 ,   elements
                 ,   temp
+                ,   context = "__global"
                 ;
 
-                grunt.log.writeln( chalk.cyan( "Processing file ") + filepath );
-                sourceList[ "<%source%>-" + idx ] = filepath;
+                grunt.log.writeln( chalk.cyan( "Processing file ") + path.resolve( filepath) );
+                //sourceList[ "<%source%>-" + idx ] = filepath;
+
                 // now get the content of each source file
                 //
                 xml         = grunt.file.read( filepath) ;
 
+                // convert the source from XML to JSON
+                //
                 src         = parser.toJson( xml,
                 {
                     object:             true
@@ -58,7 +64,19 @@ module.exports = function(grunt)
                 ,   sanitize:           false
                 } );
 
-                root = src.i18n ? "i18n" : ( src.I18N ? "I18N" : null );
+
+                root        = src.i18n ? "i18n" : ( src.I18N ? "I18N" : null );
+                // if this XML file has a context defined, create a new context object in the sourceList, otherwise default to __global
+                //
+                context     = src[root].context ? src[root].context : context;
+                if ( !sourceList[ context ] )
+                {
+                    sourceList[ context ] = {};
+
+                }
+                // add a current source file entry to the context object so that we can report in pot file wheree the following element came from
+                //
+                sourceList[ context ][ "<%source%>-" + idx ] = filepath;
 
                 // little hack because our xml parser doesnt return an array object of labels when there is only one element in the xml file
                 //
@@ -69,7 +87,7 @@ module.exports = function(grunt)
                     src[ root ].label.push( temp );
                 }
 
-                if ( root && src[ root ].label && src[  root ].label.length )
+                if ( root && src[ root ].label && src[ root ].label.length )
                 {
                     elements = src[ root ].label;
 
@@ -86,9 +104,10 @@ module.exports = function(grunt)
                         }
                         // if element doesnt exist already, add it to the list
                         //
-                        if ( !sourceList[ el.key ] )
+
+                        if ( !sourceList[ context ][ el.key ] )
                         {
-                            sourceList[ el.key ] = el.$t;
+                            sourceList[ context ][ el.key ] = el.$t;
                         }
                         else
                         {
@@ -110,7 +129,7 @@ module.exports = function(grunt)
             // create our pot file
             if ( sourceList )
             {
-                _createPotFile( f.dest, sourceList );
+                _createPotFile( f.dest, sourceList, separatePotFiles );
             }
             else
             {
@@ -121,44 +140,101 @@ module.exports = function(grunt)
     } );
 
 
-    function _createPotFile( filepath, elements )
+    function _createPotFile( filepath, elements, seperate )
     {
         var content     = ""
         ,   head
         ,   key
+        ,   context
+        ,   cntxtEl
+        ,   fileLocation
+        ,   file
         ;
+
 
         // get the head for the POT file
         //
         head            = grunt.file.read( "node_modules/grunt-xml2pot/templates/head.txt") ;
-        content         += head ;
+        head            = head.replace( "%potCreationDate%", getDate() );
 
 
-        // now create the text entries
-        for( key in elements )
+
+        // iterate the contexts objects. In case user wants seperate files per context, we will create a new file in each iteration
+        //
+        for ( context in elements )
         {
-            if ( elements.hasOwnProperty( key ) )
+            if ( elements.hasOwnProperty( context ) )
             {
-                // add comment line to POT file
-                //
-                if ( key.search( /<%source%>/) === 0 )
-                {
-                    content += "\n\n";
-                    content += "#: text from " + elements[ key ];
-                }
-                else
-                {
-                    content += "\n\n";
-                    content += "msgid \"" + key + "\"" + "\n\r";
-                    content += "msgstr \"\"";
+                cntxtEl = elements[ context ];
 
+                for( key in cntxtEl )
+                {
+                    if ( cntxtEl.hasOwnProperty( key ) )
+                    {
+
+                        if ( key.search( /<%source%>/) === 0 )
+                        {
+                            content += "\n\n";
+                            content += "#: text from " + path.resolve( cntxtEl[ key ] );
+                        }
+                        else
+                        {
+                            content += "\n\n";
+                            if ( context !== "__global" )
+                            {
+                                content += "msgctxt \"" + context + "\"" + "\n\r";
+                            }
+                            content += "msgid \"" + cntxtEl[ key ] + "\"" + "\n\r";
+                            content += "msgstr \"\"";
+
+                        }
+                    }
                 }
             }
+            // we are creating seperate files per context, so at the end of this current context iteration we write the file
+            //
+            if ( seperate )
+            {
+                // define filelocation for our seperate files
+                //
+                fileLocation = filepath.replace( /\/[^/]*$/, "" );
+
+                // Write the destination file.
+                //
+                file = fileLocation + "/" + context + ".pot";
+                grunt.file.write( file, head + content );
+                grunt.log.writeln( "\n" + chalk.green( file + " written." ) );
+                // clear context for next iteration
+                //
+                content = "";
+            }
         }
-        // Write the destination file.
-        //
-        grunt.file.write( filepath, content );
-        grunt.log.writeln( "\n" + chalk.green( filepath + " written." ) );
+
+
+        if ( !seperate )
+        {
+            // Write the destination file.
+            //
+            grunt.file.write( filepath, head + content );
+            grunt.log.writeln( "\n" + chalk.green( filepath + " written." ) );
+        }
+
     }
 
+    function getDate()
+    {
+        var now = new Date()
+        ,   result
+        ,   offset
+        ,   paddedOfset
+        ;
+        result          = grunt.template.date( now, "yyyy-mm-dd hh:MM" );
+        offset          = now.getTimezoneOffset() / 0.6;
+
+        paddedOfset     = -offset < 1000 ? "0" + offset : offset;
+        offset          = offset < 0 ? "+" + -( paddedOfset ) : "-" + ( paddedOfset );
+        result          += offset;
+
+        return result;
+    }
 };
