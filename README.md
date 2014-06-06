@@ -112,8 +112,12 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 Version 0.1.0 Initial
+
 Version 0.1.1 ~ 0.1.6 ....refining concept
+
 Version 0.1.7 Added separate Potfiles and context
+
 Version 0.1.8 Changed readme
+
 Version 0.1.9 Changed readme
 
