@@ -121,3 +121,5 @@ Version 0.1.8 Changed readme
 
 Version 0.1.9 Changed readme
 
+Version 0.2.0 fixed error on empty Xml file with only root i18n element but no labels
+

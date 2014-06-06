@@ -66,6 +66,12 @@ module.exports = function(grunt)
 
 
                 root        = src.i18n ? "i18n" : ( src.I18N ? "I18N" : null );
+
+                if ( !root )
+                {
+                    return true; // this file doesn't have any labels defined, so skip iteration
+                }
+
                 // if this XML file has a context defined, create a new context object in the sourceList, otherwise default to __global
                 //
                 context     = src[root].context ? src[root].context : context;
