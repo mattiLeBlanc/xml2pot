@@ -1,7 +1,7 @@
 {
   "name": "grunt-xml2pot",
   "description": "Convert your XML files with key/value pairs to a POT file",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/mattiLeBlanc/xml2pot",
   "author": {
     "name": "Mattijs Spierings",
@@ -24,8 +24,8 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
-    "chalk": "~0.4.0",
-    "xml2json": "~0.4.0"
+    "chalk": "~1.0.0",
+    "xml2json": "~0.6.2"
   },
   "devDependencies": {
     "grunt": "~0.4.5"
